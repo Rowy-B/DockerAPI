@@ -13,19 +13,40 @@ import (
 )
 
 func main() {
+	webRegister()
+	lijst()
+	var antwoord string
+	fmt.Println("Hallo gebruiker wil je een container maken, kies dan 1. Wil je een container verwijderen, kies dan 2. Wil je uit de applicatie, geef 3.")
+	fmt.Scanln(&antwoord)
+	if antwoord == "1" {
+		containerMaker()
+	} else if antwoord == "2" {
+		stopDan()
+		main()
+	} else if antwoord == "3" {
+		os.Exit(0)
+	} else {
+		fmt.Println("Dit is geen mogelijkheid")
+	}
+
+}
+
+func containerMaker() {
 	imageMap := make(map[string]string) //maakt een map
 	imageMap["1"] = "alpine"
 	imageMap["2"] = "nginx"
 	var image string
-	for {
-		dialoog()
 
+	for {
+		fmt.Println("Hallo gebruiker, kies een van de volgende images die je wilt gebruiken voor je volgende container")
+		fmt.Println("1 voor alpine of 2 voor nginx")
 		fmt.Scanln(&image)
 
 		if val, ok := imageMap[image]; ok { //checkt of image in imageMap zit
 			renDan(val)
+			fmt.Println("Het is gelukt, je hebt een nieuwe container!")
 			lijst()
-			break
+			main()
 		} else {
 			//fmt.Println("false")
 			fmt.Println("geef een getal")
@@ -34,11 +55,10 @@ func main() {
 
 		}
 	}
-
-	fmt.Println("goed")
 }
 
 func lijst() {
+	fmt.Println("Je hebt deze containers runnen: ")
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -53,12 +73,15 @@ func lijst() {
 	for _, container := range containers {
 		fmt.Println(container.ID)
 		fmt.Println(container.Names[0])
-		fmt.Println(container.NetworkSettings)
-		fmt.Println(container.Ports)
+		//fmt.Println(container.NetworkSettings)
+		//fmt.Println(container.Ports)
 	}
 }
 
 func renDan(image string) {
+	//fmt.Println("geef een label")
+	//var label string
+	//fmt.Scanln(&label)
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -76,6 +99,7 @@ func renDan(image string) {
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: imageName,
+		//Labels: label,
 	}, nil, nil, nil, "")
 	if err != nil {
 		panic(err)
@@ -85,13 +109,31 @@ func renDan(image string) {
 		panic(err)
 	}
 
-	fmt.Println(resp.ID)
+	fmt.Println("je container heeft dit ID gekregen: " + resp.ID)
 }
 
-func dialoog() {
-	fmt.Println("Hallo gebruiker, kies een van de volgende images die je wilt gebruiken voor je volgende container")
-	fmt.Println("1 voor alpine of 2 voor nginx")
+func stopDan() {
+	var welke string
+	fmt.Println("Geef het ID van de container die je wilt stoppen")
+	fmt.Scanln(&welke)
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		panic(err)
+	}
 
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, container := range containers {
+		fmt.Print("Stopping container ", container.ID[:10], "... ")
+		if err := cli.ContainerStop(ctx, welke, nil); err != nil {
+			panic(err)
+		}
+		fmt.Println("Success")
+	}
 }
 
 /*func ListContainer() error {
