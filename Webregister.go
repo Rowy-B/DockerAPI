@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var email string
+
 func webRegister() {
 	var begin string
 	fmt.Println("hallo gebruiker, wil je inloggen of registeren, druk op 1 voor inloggen, druk op 2 voor registreren")
@@ -29,7 +31,6 @@ type feedbacklogin struct {
 
 func login() {
 
-	var email string
 	var wachtwoord string
 	fmt.Println("Hallo gebruiker, wat is je email?")
 	fmt.Scanln(&email)

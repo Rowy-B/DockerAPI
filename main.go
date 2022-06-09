@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"os/exec"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -14,7 +16,8 @@ import (
 
 func main() {
 	webRegister()
-	lijst()
+	dockerPS()
+	//lijst()
 	var antwoord string
 	fmt.Println("Hallo gebruiker wil je een container maken, kies dan 1. Wil je een container verwijderen, kies dan 2. Wil je uit de applicatie, geef 3.")
 	fmt.Scanln(&antwoord)
@@ -45,7 +48,8 @@ func containerMaker() {
 		if val, ok := imageMap[image]; ok { //checkt of image in imageMap zit
 			renDan(val)
 			fmt.Println("Het is gelukt, je hebt een nieuwe container!")
-			lijst()
+			//lijst()
+			dockerPS()
 			main()
 		} else {
 			//fmt.Println("false")
@@ -57,7 +61,7 @@ func containerMaker() {
 	}
 }
 
-func lijst() {
+/*func lijst() {
 	fmt.Println("Je hebt deze containers runnen: ")
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -76,12 +80,14 @@ func lijst() {
 		//fmt.Println(container.NetworkSettings)
 		//fmt.Println(container.Ports)
 	}
-}
+}*/
 
 func renDan(image string) {
+
 	//fmt.Println("geef een label")
-	//var label string
-	//fmt.Scanln(&label)
+	labelmap := make(map[string]string)
+	labelmap["email"] = email
+
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -98,8 +104,8 @@ func renDan(image string) {
 	io.Copy(os.Stdout, out)
 
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: imageName,
-		//Labels: label,
+		Image:  imageName,
+		Labels: labelmap,
 	}, nil, nil, nil, "")
 	if err != nil {
 		panic(err)
@@ -134,6 +140,14 @@ func stopDan() {
 		}
 		fmt.Println("Success")
 	}
+}
+func dockerPS() {
+	out, err := exec.Command("docker", "ps", "--filter", "label=email="+email).Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(out))
 }
 
 /*func ListContainer() error {
