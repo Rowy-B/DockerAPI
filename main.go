@@ -17,7 +17,12 @@ import (
 func main() {
 	webRegister()
 	dockerPS()
+	keuzemenu()
 	//lijst()
+
+}
+
+func keuzemenu() {
 	var antwoord string
 	fmt.Println("Hallo gebruiker wil je een container maken, kies dan 1. Wil je een container verwijderen, kies dan 2. Wil je uit de applicatie, geef 3.")
 	fmt.Scanln(&antwoord)
@@ -33,7 +38,6 @@ func main() {
 	}
 
 }
-
 func containerMaker() {
 	imageMap := make(map[string]string) //maakt een map
 	imageMap["1"] = "alpine"
@@ -50,7 +54,7 @@ func containerMaker() {
 			fmt.Println("Het is gelukt, je hebt een nieuwe container!")
 			//lijst()
 			dockerPS()
-			main()
+			keuzemenu()
 		} else {
 			//fmt.Println("false")
 			fmt.Println("geef een getal")

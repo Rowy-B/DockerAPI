@@ -16,11 +16,13 @@ func webRegister() {
 	fmt.Println("hallo gebruiker, wil je inloggen of registeren, druk op 1 voor inloggen, druk op 2 voor registreren")
 	fmt.Scanln(&begin)
 	if begin == "1" {
-		login()
+		if !login() {
+			os.Exit(0)
+		}
 	} else if begin == "2" {
 		register()
 	} else {
-		return
+		webRegister()
 	}
 }
 
@@ -29,7 +31,7 @@ type feedbacklogin struct {
 	Token string `json:"token"`
 }
 
-func login() {
+func login() bool {
 
 	var wachtwoord string
 	fmt.Println("Hallo gebruiker, wat is je email?")
@@ -50,21 +52,21 @@ func login() {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return false
 	}
 	//fmt.Println(string(body))
 
@@ -73,9 +75,10 @@ func login() {
 	//fmt.Println(data.Msg) //hier wordt de data opgeroepen uit de struct
 	if data.Msg == "Successfully SignIN" {
 		fmt.Println("Welkom " + email)
+		return true
 	} else {
 		fmt.Println("dit is niet goed")
-		os.Exit(0)
+		return false
 	}
 
 }
