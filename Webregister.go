@@ -139,4 +139,6 @@ func register() {
 	json.Unmarshal(body, &data)
 	fmt.Println(data.Id)
 	fmt.Println(data.Maken)
+	fmt.Println("Als je de applicatie opnieuw start, kan je inloggen")
+	os.Exit(0)
 }

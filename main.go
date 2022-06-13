@@ -11,14 +11,12 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	//"github.com/docker/docker/pkg/stdcopy"
 )
 
 func main() {
 	webRegister()
 	dockerPS()
 	keuzemenu()
-	//lijst()
 
 }
 
@@ -30,7 +28,7 @@ func keuzemenu() {
 		containerMaker()
 	} else if antwoord == "2" {
 		stopDan()
-		main()
+		keuzemenu()
 	} else if antwoord == "3" {
 		os.Exit(0)
 	} else {
@@ -39,7 +37,7 @@ func keuzemenu() {
 
 }
 func containerMaker() {
-	imageMap := make(map[string]string) //maakt een map
+	imageMap := make(map[string]string) //Maakt een map
 	imageMap["1"] = "alpine"
 	imageMap["2"] = "nginx"
 	var image string
@@ -49,7 +47,7 @@ func containerMaker() {
 		fmt.Println("1 voor alpine of 2 voor nginx")
 		fmt.Scanln(&image)
 
-		if val, ok := imageMap[image]; ok { //checkt of image in imageMap zit
+		if val, ok := imageMap[image]; ok { //Checkt of image in imageMap zit
 			renDan(val)
 			fmt.Println("Het is gelukt, je hebt een nieuwe container!")
 			//lijst()
@@ -64,27 +62,6 @@ func containerMaker() {
 		}
 	}
 }
-
-/*func lijst() {
-	fmt.Println("Je hebt deze containers runnen: ")
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(err)
-	}
-
-	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
-	if err != nil {
-		panic(err)
-	}
-	//types.Container
-	for _, container := range containers {
-		fmt.Println(container.ID)
-		fmt.Println(container.Names[0])
-		//fmt.Println(container.NetworkSettings)
-		//fmt.Println(container.Ports)
-	}
-}*/
 
 func renDan(image string) {
 
@@ -138,11 +115,14 @@ func stopDan() {
 	}
 
 	for _, container := range containers {
-		fmt.Print("Stopping container ", container.ID[:10], "... ")
+		fmt.Print("Stopping container ", welke, "... ")
+		s := []string{}
+		s = append(s, container.ID) //is om var container toch te gebruiken
 		if err := cli.ContainerStop(ctx, welke, nil); err != nil {
 			panic(err)
 		}
 		fmt.Println("Success")
+		dockerPS()
 	}
 }
 func dockerPS() {
@@ -154,67 +134,23 @@ func dockerPS() {
 	fmt.Println(string(out))
 }
 
-/*func ListContainer() error {
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	if len(containers) > 0 {
-		for _, container := range containers {
-			fmt.Printf("Container ID: %s", container.ID)
-		}
-	} else {
-		fmt.Println("There are no containers running")
-	}
-	return nil
-}
-
-func runContainer() {
-
+/*func lijst() {
+	fmt.Println("Je hebt deze containers runnen: ")
 	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation()) //lokaal zoeken naar docker en daarmee communiceren
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
 
-	reader, err := cli.ImagePull(ctx, "docker.io/library/alpine", types.ImagePullOptions{}) //image puler
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		panic(err)
 	}
-	io.Copy(os.Stdout, reader)
-
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: "alpine",
-		Cmd:   []string{"echo", "hello world"},
-	}, nil, nil, nil, "")
-	if err != nil {
-		panic(err)
+	//types.Container
+	for _, container := range containers {
+		fmt.Println(container.ID)
+		fmt.Println(container.Names[0])
+		//fmt.Println(container.NetworkSettings)
+		//fmt.Println(container.Ports)
 	}
-
-	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil { //start container
-		panic(err)
-	}
-
-	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning) //wacht tot de container leeft
-	select {
-	case err := <-errCh:
-		if err != nil {
-			panic(err)
-		}
-	case <-statusCh:
-	}
-
-	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true}) // leest de logs
-	if err != nil {
-		panic(err)
-	}
-
-	stdcopy.StdCopy(os.Stdout, os.Stderr, out) //schrijf de logs naar het scherm
-}
-*/
+}*/
